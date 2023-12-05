@@ -154,5 +154,6 @@ examples/save
 examples/modality_pred/data
 figures/
 
-MoNuSeg/
+MoNuSeg*/
 datasets/
+IMG/

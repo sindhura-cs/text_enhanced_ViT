@@ -63,14 +63,14 @@ if __name__ == '__main__':
     if config.task_name == "MoNuSeg":
         test_num = 14
         model_type = config.model_name
-        model_path = "./MoNuSeg/" + model_type + "/" + test_session + "/models/best_model-" + model_type + ".pth.tar"
+        model_path = "./MoNuSeg/" + model_type + "/" + config.text_emb + '/'+ test_session + "/models/best_model-" + model_type + ".pth.tar"
 
     elif config.task_name == "Covid19":
         test_num = 2113
         model_type = config.model_name
-        model_path = "./Covid19/" + model_type + "/" + test_session + "/models/best_model-" + model_type + ".pth.tar"
+        model_path = "./Covid19/" + model_type + "/" + config.text_emb + '/' +test_session + "/models/best_model-" + model_type + ".pth.tar"
     
-    save_path = config.task_name + '/' + model_type + '/' + test_session + '/'
+    save_path = config.task_name + '/' + model_type + '/' + config.text_emb + '/' + test_session + '/'
     vis_path = "./" + config.task_name + '_visualize_test/'
     if not os.path.exists(vis_path):
         os.makedirs(vis_path)

@@ -23,26 +23,28 @@ vis_frequency = 10
 early_stopping_patience = 50
 
 pretrain = False
-task_name = 'MoNuSeg' 
-# task_name = 'Covid19'
-learning_rate = 1e-3  # MoNuSeg: 1e-3, Covid19: 3e-4
+# task_name = 'MoNuSeg' 
+task_name = 'Covid19'
+learning_rate = 3e-4  # MoNuSeg: 1e-3, Covid19: 3e-4
 batch_size = 2  # For LViT-T, 2 is better than 4
 
 model_name = 'LViT'
 # model_name = 'LViT_pretrain'
+
+text_emb = 'clinicalbert' #bert-base-uncased, biobert, clinicalbert
 
 train_dataset = './datasets/' + task_name + '/Train_Folder/'
 val_dataset = './datasets/' + task_name + '/Val_Folder/'
 test_dataset = './datasets/' + task_name + '/Test_Folder/'
 task_dataset = './datasets/' + task_name + '/Train_Folder/'
 session_name = 'Test_session' + '_' + time.strftime('%m.%d_%Hh%M')
-save_path = task_name + '/' + model_name + '/' + session_name + '/'
+save_path = task_name + '/' + model_name + '/' + text_emb + '/' +session_name + '/'
 model_path = save_path + 'models/'
 tensorboard_folder = save_path + 'tensorboard_logs/'
 logger_path = save_path + session_name + ".log"
 visualize_path = save_path + 'visualize_val/'
 
-
+test_session = 'Test_session_12.03_16h50'
 ##########################################################################
 # CTrans configs
 ##########################################################################

@@ -34,11 +34,11 @@ class TextLevelModule(nn.Module):
         super(TextLevelModule, self).__init__()
         self.config = config
         
-        if config["model_name"] == "bert-base-uncased":
+        if config["text_emb"] == "bert-base-uncased":
             self.bert_model = BertModel.from_pretrained(config["model_name"])
-        elif config["model_name"] == "biobert":
+        elif config["text_emb"] == "biobert":
             self.bert_model = BertModel.from_pretrained("dmis-lab/biobert-v1.1")
-        elif config["model_name"] == "clinicalbert":
+        elif config["text_emb"] == "clinicalbert":
             self.bert_model = BertModel.from_pretrained("emilyalsentzer/Bio_ClinicalBERT")
 
         self.tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
