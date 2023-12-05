@@ -16,30 +16,97 @@ from torch.autograd import Variable
 from torch.optim.optimizer import Optimizer
 
 
-class WeightedBCE(nn.Module):
+# class WeightedBCE(nn.Module):
 
-    def __init__(self, weights=[0.4, 0.6]):
+#     def __init__(self, weights=[0.4, 0.6]):
+#         super(WeightedBCE, self).__init__()
+#         self.weights = weights
+
+#     def forward(self, logit_pixel, truth_pixel):
+#         # print("====",logit_pixel.size())
+#         logit = logit_pixel.view(-1)
+#         truth = truth_pixel.view(-1)
+#         assert (logit.shape == truth.shape)
+#         loss = F.binary_cross_entropy(logit, truth, reduction='none')
+#         pos = (truth > 0.5).float()
+#         neg = (truth < 0.5).float()
+#         pos_weight = pos.sum().item() + 1e-12
+#         neg_weight = neg.sum().item() + 1e-12
+#         loss = (self.weights[0] * pos * loss / pos_weight + self.weights[1] * neg * loss / neg_weight).sum()
+
+#         return loss
+
+
+# By introducing class weights and applying them to the loss calculation based on the ground truth class, the 
+# model can focus more on certain classes during training. The new implementation is used when certain classes 
+# are under-represented or more critical for the model to learn effectively. Class weights allows the loss 
+# function to emphasize the impact of certain classes over others, effectively addressing class imbalance 
+# issues. This improvement can potentially lead to better model generalization and performance, especially 
+# when dealing with imbalanced datasets or skewed class distributions.
+class WeightedBCE(nn.Module):
+    def __init__(self, class_weights=[0.4, 0.6]):
         super(WeightedBCE, self).__init__()
-        self.weights = weights
+        self.class_weights = class_weights
 
     def forward(self, logit_pixel, truth_pixel):
-        # print("====",logit_pixel.size())
         logit = logit_pixel.view(-1)
         truth = truth_pixel.view(-1)
+        
+        # Ensure the shapes of logit and truth are the same
         assert (logit.shape == truth.shape)
+
+        # Compute binary cross entropy loss
         loss = F.binary_cross_entropy(logit, truth, reduction='none')
-        pos = (truth > 0.5).float()
-        neg = (truth < 0.5).float()
-        pos_weight = pos.sum().item() + 1e-12
-        neg_weight = neg.sum().item() + 1e-12
-        loss = (self.weights[0] * pos * loss / pos_weight + self.weights[1] * neg * loss / neg_weight).sum()
 
-        return loss
+        # Convert class weights to a tensor on the same device as the logits
+        class_weight = torch.tensor(self.class_weights, device=logit.device)
+        
+        # Calculate weighted loss based on class weights and ground truth labels
+        weighted_loss = loss * class_weight[truth.long()]
+        
+        # Compute the mean of the weighted loss
+        return weighted_loss.mean()
 
+# class WeightedDiceLoss(nn.Module):
+#     def __init__(self, weights=[0.5, 0.5]):  # W_pos=0.8, W_neg=0.2
+#         super(WeightedDiceLoss, self).__init__()
+#         self.weights = weights
 
+#     def forward(self, logit, truth, smooth=1e-5):
+#         batch_size = len(logit)
+#         logit = logit.view(batch_size, -1)
+#         truth = truth.view(batch_size, -1)
+#         assert (logit.shape == truth.shape)
+#         p = logit.view(batch_size, -1)
+#         t = truth.view(batch_size, -1)
+#         w = truth.detach()
+#         w = w * (self.weights[1] - self.weights[0]) + self.weights[0]
+#         p = w * (p)
+#         t = w * (t)
+#         intersection = (p * t).sum(-1)
+#         union = (p * p).sum(-1) + (t * t).sum(-1)
+#         dice = 1 - (2 * intersection + smooth) / (union + smooth)
+
+#         loss = dice.mean()
+#         return loss
+
+# Focal Loss Incorporation: The addition of focal loss (a modification of 
+# standard cross-entropy loss) helps in addressing class imbalance and 
+# focusing the model's attention more on hard-to-classify examples by 
+# assigning different weights to well-classified and misclassified samples.
+# By introducing alpha and gamma parameters, the function becomes more versatile. 
+# alpha controls the balance between the focal and Dice losses, and gamma adjusts 
+# the rate at which easy examples are down-weighted.    
+
+# Addressing Class Imbalance: The focal loss component addresses class imbalance 
+# issues similar to the original weighted Dice loss by providing a mechanism to 
+# focus the model's learning on challenging samples, potentially leading to better 
+# convergence
 class WeightedDiceLoss(nn.Module):
-    def __init__(self, weights=[0.5, 0.5]):  # W_pos=0.8, W_neg=0.2
+    def __init__(self, alpha=0.25, gamma=2, weights=[0.5, 0.5]):
         super(WeightedDiceLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
         self.weights = weights
 
     def forward(self, logit, truth, smooth=1e-5):
@@ -47,19 +114,29 @@ class WeightedDiceLoss(nn.Module):
         logit = logit.view(batch_size, -1)
         truth = truth.view(batch_size, -1)
         assert (logit.shape == truth.shape)
+
+        # Reshape logits and truth for calculations
         p = logit.view(batch_size, -1)
         t = truth.view(batch_size, -1)
+        
+        # Apply class weights to logits and truth
         w = truth.detach()
         w = w * (self.weights[1] - self.weights[0]) + self.weights[0]
         p = w * (p)
         t = w * (t)
+
+        # Calculate intersection, union, and Dice coefficient
         intersection = (p * t).sum(-1)
         union = (p * p).sum(-1) + (t * t).sum(-1)
         dice = 1 - (2 * intersection + smooth) / (union + smooth)
 
-        loss = dice.mean()
-        return loss
+        # Calculate focal loss based on Dice coefficient
+        pt = torch.exp(-dice)
+        focal_loss = self.alpha * (1 - pt) ** self.gamma * dice
 
+        # Compute the mean of the focal loss across the batch
+        loss = focal_loss.mean()
+        return loss
 
 class BinaryDiceLoss(nn.Module):
     def __init__(self):
