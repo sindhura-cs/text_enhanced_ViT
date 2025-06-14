@@ -1,10 +1,6 @@
 # LViT
 
-
-This repo is the official implementation of "**LViT: Language meets Vision Transformer in Medical Image Segmentation**" 
-[Arxiv](https://arxiv.org/abs/2206.14718), [ResearchGate](https://www.researchgate.net/publication/371833348_LViT_Language_meets_Vision_Transformer_in_Medical_Image_Segmentation), [IEEEXplore](https://ieeexplore.ieee.org/document/10172039)
-
-![image](https://github.com/HUANGLIZI/LViT/blob/main/IMG/LViT.png)
+"**LViT: Language meets Vision Transformer in Image Segmentation**" 
 
 ## Requirements
 
@@ -42,8 +38,6 @@ The text annotation of QaTa-COV19 has been released!
 ***(Note: The text annotation of MosMedData+ train dataset [download link](https://1drv.ms/x/s!AihndoV8PhTDguIIKCRfYB9Z0NL8Dw?e=8rj6rY).
 The text annotation of MosMedData+ val dataset [download link](https://1drv.ms/u/s!AihndoV8PhTDguIGtAgZiRQFYfsAjw?e=tqowkJ).
 The text annotation of MosMedData+ test dataset [download link](https://1drv.ms/u/s!AihndoV8PhTDguIHdHkwXMxGlgU9Tg?e=PbcllF).)***
-  
-  *If you use the datasets provided by us, please cite the LViT.*
 
 #### 1.2. Format Preparation
 
@@ -131,33 +125,9 @@ You can get the Dice and IoU scores and the visualization results.
 | ESO-CT | LViT-TW    	       | 68.27    | 57.02    |
 
 
-### 5. Reproducibility
-
-In our code, we carefully set the random seed and set cudnn as 'deterministic' mode to eliminate the randomness. However, there still exsist some factors which may cause different training results, e.g., the cuda version, GPU types, the number of GPUs and etc. The GPU used in our experiments is 2-card NVIDIA V100 (32G) and the cuda version is 11.2. And the upsampling operation has big problems with randomness for multi-GPU cases.
-See https://pytorch.org/docs/stable/notes/randomness.html for more details.
-
-
-
 ## Reference
 
 
 * [TransUNet](https://github.com/Beckschen/TransUNet) 
 * [MedT](https://github.com/jeya-maria-jose/Medical-Transformer)
 * [UCTransNet](https://github.com/McGregorWwww/UCTransNet)
-
-
-## Citation
-
-```bash
-@article{li2023lvit,
-  title={Lvit: language meets vision transformer in medical image segmentation},
-  author={Li, Zihan and Li, Yunxiang and Li, Qingde and Wang, Puyang and Guo, Dazhou and Lu, Le and Jin, Dakai and Zhang, You and Hong, Qingqi},
-  journal={IEEE Transactions on Medical Imaging},
-  year={2023},
-  publisher={IEEE}
-}
-```
-
-[![Stargazers repo roster for @HUANGLIZI/LViT](https://reporoster.com/stars/HUANGLIZI/LViT)](https://github.com/HUANGLIZI/LViT/stargazers)
-
-[![Forkers repo roster for @HUANGLIZI/LViT](https://reporoster.com/forks/HUANGLIZI/LViT)](https://github.com/HUANGLIZI/LViT/network/members)
